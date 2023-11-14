@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  mysqler:
+    image: mysql:latest
+    container_name: mysqler
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      
+  redis:
+    image: redis
+    container_name: redis
+
+  app:
+    container_name: app
+    depends_on:
+      - mysqler
+      - redis
+    build: ./demo
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqler:3306/test?createDatabaseIfNotExist=true
+      SPRING_REDIS_HOST: redis
+    ports:
+      - 1234:8080
+
+  auth:
+    container_name: auth
+    depends_on:
+      - app
+      - mysqler
+      - redis
+    build: ./Auth
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqler:3306/test?createDatabaseIfNotExist=true
+      SPRING_REDIS_HOST: redis
+    ports:
+      - 1235:8081
